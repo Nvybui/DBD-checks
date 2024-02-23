@@ -718,7 +718,7 @@ server <- function(input,output){
     
     
     #install.packages('dplyr', repos='https://cloud.r-project.org/')
-    
+ 
     ##############** Accordion 21 **##################
     
     crfdraftvar <<- crfdraftvar + 1
@@ -754,7 +754,7 @@ server <- function(input,output){
             class = "accordion-body",
             HTML(paste0("Confirm that SET_DEC_DICTTERM is implemented in the study.<br>",cfdictterm)))))
     })
-    
+   
     ##############** Accordion 20 **##################
     crfdraftvar <<- crfdraftvar + 1
     
@@ -827,7 +827,7 @@ server <- function(input,output){
             HTML(paste0("Confirm that only the selection form is assigned to the unscheduled visit folder and that the
                       selection form is setup according to the specifications.<br>",unschdname)))))
     })
-    
+   
     ##############** Accordion 18 **##################
     
     crfdraftvar <<- crfdraftvar + 1
@@ -965,7 +965,7 @@ server <- function(input,output){
           )
       })
     }
-
+   
     ##############** Accordion 16 **##################
     crfdraftvar <<- crfdraftvar + 1
     
@@ -1206,30 +1206,29 @@ server <- function(input,output){
     })
     
     ###############** Accordion 12 **################### 
-    
     crfdraftvar <<- crfdraftvar + 1
-    
+   
     dict <- any(datadictentriesdf$DataDictionaryName == "zSAE_ALWAYS")
     if(!is.na(dict)){
-      datadictsaeV01 <- subset(datadictentriesdf,datadictentriesdf$DataDictionaryName == "zSAE_ALWAYS"
-                               & grepl("V01",datadictentriesdf$CodedData))
-      saeformOIDV01 <- subset(formsdf,grepl(substr(datadictsaeV01$CodedData[1],5,13),formsdf$OID))
-      
+     
+       datadictsaeDM <- subset(datadictentriesdf,datadictentriesdf$DataDictionaryName == "zSAE_ALWAYS"
+                               & grepl("DM",datadictentriesdf$CodedData))
+      saeformOIDDM <- subset(formsdf,grepl(substr(datadictsaeDM$CodedData[1],5,13),formsdf$OID))
       datadictsaeAE <- subset(datadictentriesdf,datadictentriesdf$DataDictionaryName == "zSAE_ALWAYS"
                               & grepl("AE",datadictentriesdf$CodedData))
       saeformOIDAE <- subset(formsdf,grepl(substr(datadictsaeAE$CodedData[1],4,12),formsdf$OID))
       
-      if(nrow(saeformOIDV01) > 0 & nrow(saeformOIDAE) > 0){
+      if(nrow(saeformOIDDM) > 0 & nrow(saeformOIDAE) > 0){
         
         datadictsaename <- paste0("<b>There are no issues for this check. The dictionary is included and the
                                FormOIDs in the CodedData column in the DataDictionaryEntries tab
                                and FormOID in the Forms tab for DM and AE are matching.</b>")
-      } else if (nrow(saeformOIDV01) <= 0 & nrow(saeformOIDAE) >0){
+      } else if (nrow(saeformOIDDM) <= 0 & nrow(saeformOIDAE) >0){
         datadictsaename <- paste0("<b>The dictionary is included but the FormOID in the Forms tab for DM is not matching with the
                                FormOID in the CodedData column in the DataDictionaryEntries tab.</b><br>
-                               FormOID: ",paste(substring(datadictsaeV01$CodedData[1],5,13),collapse = ","))
+                               FormOID: ",paste(substring(datadictsaeDM$CodedData[1],5,13),collapse = ","))
         
-      } else if (nrow(saeformOIDV01) > 0 & nrow(saeformOIDAE) <=0){
+      } else if (nrow(saeformOIDDM) > 0 & nrow(saeformOIDAE) <=0){
         
         datadictsaename <- paste0("<b>The dictionary is included but the FormOID in the Forms tab for AE is not matching with the
                                   FormOID in the CodedData column in the DataDictionaryEntries tab.</b><br>
@@ -1237,12 +1236,12 @@ server <- function(input,output){
       } else {
         datadictsaename <- paste0("<b>The dictionary is included but the FormOIDs in the CodedData column in the
                                   DataDictionaryEntries tab and FormOID in the Forms tab for DM and AE are not matching.<br>
-                                  FormOID(s): ",paste(substring(datadictsaeV01$CodedData[1],5,13),collapse = ",")
+                                  FormOID(s): ",paste(substring(datadictsaeDM$CodedData[1],5,13),collapse = ",")
                                   ,",",paste(substring(datadictsaeAE$CodedData[1],4,12),collapse = ","),"</b>")
       }
       
       updatedatadictsae <- function(status){
-        if (nrow(saeformOIDV01) > 0 & nrow(saeformOIDAE) > 0){
+        if (nrow(saeformOIDDM) > 0 & nrow(saeformOIDAE) > 0){
           donevar <<- donevar + 1
           status = "success"
         }
@@ -1734,14 +1733,14 @@ server <- function(input,output){
         )
       )
     })
-    
+
     ##############** Accordion 2 **###################
    
     crfdraftvar <<- crfdraftvar+1
     
     updatelinknext <- function(status){
       
-      allvaluesmatch <- any(formsdf$ConfirmationStyle == "LinkNext")
+      allvaluesmatch <- any(grepl("LinkNext",formsdf$ConfirmationStyle))
       nonmatchingindices <- which(formsdf$ConfirmationStyle != "LinkNext")
       nonmatchingvalues <- formsdf$ConfirmationStyle[nonmatchingindices]
       
@@ -1754,7 +1753,7 @@ server <- function(input,output){
       } else {
         status = "danger"
         linknextvar <- paste0("<b><span style='color:red;'>For this file, the ConfirmationStyle is: ", 
-                               unique(updatelinknext$nonmatchingvalues),"</span></b>")
+                               unique(nonmatchingvalues),"</span></b>")
       }
       return(list(status = status,nonmatchingvalues = nonmatchingvalues, donevar = donevar, linknextvar = linknextvar))
     }
@@ -1778,9 +1777,7 @@ server <- function(input,output){
       )
     })
     
-    
-    
-    
+
     ##############** Accordion 1 **###################
     
     crfdraftvar <<- crfdraftvar + 1
